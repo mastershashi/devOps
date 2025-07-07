@@ -1,0 +1,6 @@
+
+# build
+docker build -t flask-patient-api .
+
+# run
+docker run -d -p 5050:5050 flask-patient-api:v1
