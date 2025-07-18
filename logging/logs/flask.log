@@ -1,0 +1,7 @@
+{"time": "2025-07-08 14:33:07,872", "level": "INFO", "message": "Created patient 1"}
+{"time": "2025-07-08 14:36:15,056", "level": "ERROR", "message": "Patient 2 not found"}
+{"time": "2025-07-08 14:36:29,970", "level": "INFO", "message": "Retrieved patient 1"}
+{"time": "2025-07-11 16:19:32,596", "level": "INFO", "message": "Created patient 1"}
+{"time": "2025-07-11 16:23:42,645", "level": "INFO", "message": "Created patient 2"}
+{"time": "2025-07-11 16:24:20,495", "level": "INFO", "message": "Retrieved patient 2"}
+{"time": "2025-07-11 16:24:42,203", "level": "ERROR", "message": "Patient 5 not found"}
