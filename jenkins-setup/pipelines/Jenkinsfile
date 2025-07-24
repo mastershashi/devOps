@@ -1,19 +1,78 @@
 pipeline {
   agent any
+
+  environment {
+    DOCKER_IMAGE = "yourdockerhubuser/yourapp"
+    DOCKER_TAG = "latest"
+  }
+
   stages {
     stage('Build') {
       steps {
         echo "✅ Building the app..."
+        // build your app here
       }
     }
+
     stage('Test') {
       steps {
         echo "🧪 Running tests..."
+        // run tests here
       }
     }
-    stage('Deploy') {
+
+    stage('Docker Build') {
       steps {
-        echo "🚀 Deploying to environment..."
+        script {
+          echo "🐳 Building Docker image..."
+          sh "docker build -t $DOCKER_IMAGE:$DOCKER_TAG ."
+        }
+      }
+    }
+
+    stage('Push to Docker Hub') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+          sh """
+            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+            docker push $DOCKER_IMAGE:$DOCKER_TAG
+          """
+        }
+      }
+    }
+
+    stage('Deploy to Dev/Staging') {
+      steps {
+        echo "🚀 Deploying to staging environment..."
+        // deployment script/command
+      }
+    }
+
+    stage('Approval & Deploy to EU10') {
+      steps {
+        input message: "Deploy to EU10?", ok: "Deploy"
+        echo "🚀 Deploying to EU10..."
+      }
+    }
+
+    stage('Approval & Deploy to EU20') {
+      steps {
+        input message: "Deploy to EU20?", ok: "Deploy"
+        echo "🚀 Deploying to EU20..."
+      }
+    }
+
+    stage('Approval & Deploy to US10') {
+      steps {
+        input message: "Deploy to US10?", ok: "Deploy"
+        echo "🚀 Deploying to US10..."
+      }
+    }
+
+    stage('Approval & Deploy to US20') {
+      steps {
+        input message: "Deploy to US20?", ok: "Deploy"
+        echo "🚀 Deploying to US20..."
       }
     }
   }
