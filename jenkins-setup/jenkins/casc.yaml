@@ -25,7 +25,7 @@ jobs:
                         remote {
                           url("https://github.com/mastershashi/devOps.git")
                         }
-                        branches("*/main")
+                        branches("*/master")
                       }
                     }
                     scriptPath("jenkins-setup/pipelines/Jenkinsfile")
