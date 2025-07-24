@@ -1,0 +1,38 @@
+jenkins:
+  systemMessage: "Jenkins configured as code with seed job 🚀"
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: admin
+          password: admin
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+# 👇 THIS MUST BE OUTSIDE `jenkins:`!
+jobs:
+  - script: >
+      freeStyleJob('seed-job') {
+        steps {
+          dsl {
+            text('''
+              pipelineJob("ci-cd-pipeline") {
+                definition {
+                  cpsScm {
+                    scm {
+                      git {
+                        remote {
+                          url("https://github.com/mastershashi/devOps.git")
+                        }
+                        branches("*/main")
+                      }
+                    }
+                    scriptPath("jenkins-setup/pipelines/Jenkinsfile")
+                  }
+                }
+              }
+            ''')
+          }
+        }
+      }
