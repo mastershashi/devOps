@@ -15,6 +15,6 @@ services:
     volumes:
       - jenkins_home:/var/jenkins_home
       - ./jenkins/casc.yaml:/var/jenkins_home/casc/casc.yaml
-      - /Users/shashikumarpandey/.docker/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock
 volumes:
   jenkins_home:

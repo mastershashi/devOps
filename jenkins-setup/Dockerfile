@@ -10,7 +10,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Add Jenkins user to docker group to allow socket access
-ARG DOCKER_GID=1
+ARG DOCKER_GID=0
 RUN groupadd -g ${DOCKER_GID} docker || true && usermod -aG docker jenkins
 
 
