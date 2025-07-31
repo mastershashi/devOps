@@ -10,7 +10,9 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Add Jenkins user to docker group to allow socket access
-RUN groupadd -f docker && usermod -aG docker jenkins
+ARG DOCKER_GID=1
+RUN groupadd -g ${DOCKER_GID} docker || true && usermod -aG docker jenkins
+
 
 # Add plugin install CLI
 RUN curl -fsSL https://github.com/jenkinsci/plugin-installation-manager-tool/releases/latest/download/jenkins-plugin-manager-2.13.2.jar -o /usr/share/jenkins/ref/jenkins-plugin-manager.jar
