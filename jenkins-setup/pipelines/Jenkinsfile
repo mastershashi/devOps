@@ -2,30 +2,33 @@ pipeline {
   agent any
 
   environment {
-    DOCKER_IMAGE = "yourdockerhubuser/yourapp"
-    DOCKER_TAG = "latest"
+    APP_NAME     = "patient-app"
+    DOCKER_USER  = "shashitraining"
+    DOCKER_IMAGE = "${DOCKER_USER}/${APP_NAME}"
+    DOCKER_TAG   = "${env.BUILD_NUMBER}"   // or "latest" if you prefer
+    APP_DIR      = "logging"
   }
 
   stages {
     stage('Build') {
       steps {
-        echo "✅ Building the app..."
-        // build your app here
+        echo "✅ Building Flask app..."
+        sh "python3 -m py_compile $APP_DIR/patient.py"
       }
     }
 
     stage('Test') {
       steps {
         echo "🧪 Running tests..."
-        // run tests here
+        sh "echo 'No tests yet - add pytest later'"
       }
     }
 
     stage('Docker Build') {
       steps {
         script {
-          echo "🐳 Building Docker image..."
-          sh "docker build -t $DOCKER_IMAGE:$DOCKER_TAG ."
+          echo "🐳 Building Docker image $DOCKER_IMAGE:$DOCKER_TAG"
+          sh "docker build -t $DOCKER_IMAGE:$DOCKER_TAG $APP_DIR"
         }
       }
     }
@@ -36,43 +39,10 @@ pipeline {
           sh """
             echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
             docker push $DOCKER_IMAGE:$DOCKER_TAG
+            docker tag $DOCKER_IMAGE:$DOCKER_TAG $DOCKER_IMAGE:latest
+            docker push $DOCKER_IMAGE:latest
           """
         }
-      }
-    }
-
-    stage('Deploy to Dev/Staging') {
-      steps {
-        echo "🚀 Deploying to staging environment..."
-        // deployment script/command
-      }
-    }
-
-    stage('Approval & Deploy to EU10') {
-      steps {
-        input message: "Deploy to EU10?", ok: "Deploy"
-        echo "🚀 Deploying to EU10..."
-      }
-    }
-
-    stage('Approval & Deploy to EU20') {
-      steps {
-        input message: "Deploy to EU20?", ok: "Deploy"
-        echo "🚀 Deploying to EU20..."
-      }
-    }
-
-    stage('Approval & Deploy to US10') {
-      steps {
-        input message: "Deploy to US10?", ok: "Deploy"
-        echo "🚀 Deploying to US10..."
-      }
-    }
-
-    stage('Approval & Deploy to US20') {
-      steps {
-        input message: "Deploy to US20?", ok: "Deploy"
-        echo "🚀 Deploying to US20..."
       }
     }
   }
