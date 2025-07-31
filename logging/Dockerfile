@@ -12,7 +12,7 @@ COPY patient.py .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Expose the port your app runs on
-EXPOSE 5000
+EXPOSE 5050
 
 # Command to run the app
 CMD ["python", "patient.py"]
