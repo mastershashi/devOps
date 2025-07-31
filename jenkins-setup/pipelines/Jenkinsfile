@@ -18,9 +18,15 @@ pipeline {
     stage('Install Docker CLI') {
       steps {
         sh '''
-          apt-get update && apt-get install -y docker.io
+          apk add --no-cache docker-cli
           docker --version
         '''
+      }
+    }
+    stage('Install Python') {
+      steps {
+        sh 'apk add --no-cache python3 py3-pip'
+        sh 'python3 --version'
       }
     }
 
