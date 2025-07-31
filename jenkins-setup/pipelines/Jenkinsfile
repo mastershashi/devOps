@@ -1,6 +1,11 @@
 pipeline {
-  agent any
-
+  
+  agent {
+    docker {
+      image 'python:3.11-slim'
+      args '-v /var/run/docker.sock:/var/run/docker.sock'  // so Docker works too
+    }
+  }
   environment {
     APP_NAME     = "patient-app"
     DOCKER_USER  = "shashitraining"
