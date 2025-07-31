@@ -48,7 +48,7 @@
 
 ---
 
-## 🔍 DevOps Lifecycle Stages
+## DevOps Lifecycle Stages
 
 1. **Plan** – Agile planning (e.g., Jira, Trello)
 2. **Develop** – Coding (e.g., Git, VS Code)
@@ -61,7 +61,7 @@
 
 ---
 
-## 🧰 DevOps Toolchain
+## DevOps Toolchain
 
 | Category            | Tools                        |
 | ------------------- | ---------------------------- |
@@ -76,7 +76,7 @@
 
 ---
 
-## 🚀 Benefits of DevOps & CI/CD
+## Benefits of DevOps & CI/CD
 
 - Faster time to market
 - Reduced errors and rollbacks
@@ -86,7 +86,7 @@
 
 ---
 
-## 📈 Example CI/CD Pipeline
+## Example CI/CD Pipeline
 
 1. Developer pushes code to GitHub.
 2. GitHub Actions triggers a build.
