@@ -4,6 +4,14 @@ FROM jenkins/jenkins:lts
 
 USER root
 
+# Install required tools: Docker CLI + Python 3.11 + pip + curl
+RUN apt-get update && \
+    apt-get install -y docker.io python3 python3-pip curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Add Jenkins user to docker group to allow socket access
+RUN groupadd -f docker && usermod -aG docker jenkins
+
 # Add plugin install CLI
 RUN curl -fsSL https://github.com/jenkinsci/plugin-installation-manager-tool/releases/latest/download/jenkins-plugin-manager-2.13.2.jar -o /usr/share/jenkins/ref/jenkins-plugin-manager.jar
 
