@@ -1,0 +1,8 @@
+docker-workflow
+credentials-binding
+configuration-as-code:latest
+job-dsl:latest
+git:latest
+workflow-aggregator:latest
+docker-workflow:latest
+blueocean:latest

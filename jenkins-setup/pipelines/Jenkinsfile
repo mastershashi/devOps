@@ -1,0 +1,58 @@
+pipeline {
+  agent {
+    docker {
+      image 'docker:24.0.5-cli'
+      args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
+    }
+  }
+
+  environment {
+    APP_NAME     = "patient-app"
+    DOCKER_USER  = "shashitraining"
+    DOCKER_IMAGE = "${DOCKER_USER}/${APP_NAME}"
+    DOCKER_TAG   = "${env.BUILD_NUMBER}"
+    APP_DIR      = "logging"
+  }
+
+  stages {
+    stage('Install Docker CLI') {
+      steps {
+        sh '''
+          apk add --no-cache docker-cli
+          docker --version
+        '''
+      }
+    }
+    stage('Install Python') {
+      steps {
+        sh 'apk add --no-cache python3 py3-pip'
+        sh 'python3 --version'
+      }
+    }
+
+    stage('Build') {
+      steps {
+        sh "python3 -m py_compile $APP_DIR/patient.py"
+      }
+    }
+
+    stage('Docker Build') {
+      steps {
+        sh "docker build -t $DOCKER_IMAGE:$DOCKER_TAG $APP_DIR"
+      }
+    }
+
+    stage('Push to Docker Hub') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+          sh '''
+            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+            docker push $DOCKER_IMAGE:$DOCKER_TAG
+            docker tag $DOCKER_IMAGE:$DOCKER_TAG $DOCKER_IMAGE:latest
+            docker push $DOCKER_IMAGE:latest
+          '''
+        }
+      }
+    }
+  }
+}
