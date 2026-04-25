@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Content Workflow</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      margin: 0;
+      background: #f4f6f8;
+    }
+
+    header {
+      background: #1976d2;
+      color: white;
+      padding: 14px;
+      font-size: 18px;
+    }
+
+    .wrap {
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    textarea, input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      background: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #125ea8;
+    }
+
+    .step {
+      padding: 8px;
+      margin: 5px 0;
+      background: #eee;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .done {
+      background: #c8e6c9;
+    }
+
+    .processing {
+      background: #fff3cd;
+    }
+
+    #previewText {
+      white-space: pre-line;
+      margin-top: 10px;
+    }
+
+    #previewImage {
+      max-width: 100%;
+      margin-top: 10px;
+      border-radius: 8px;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>🚀 AI Content → LinkedIn Workflow</header>
+
+<div class="wrap">
+
+  <!-- PROMPT + GENERATE -->
+  <div class="card">
+    <h3>1. Prompt</h3>
+    <input id="prompt" placeholder="Enter idea..." />
+    <button onclick="setPrompt()">Save</button>
+
+    <h3>AI Model</h3>
+    <select id="model" onchange="setModel()">
+      <option value="groq">Groq (Free)</option>
+      <option value="openai">OpenAI</option>
+      <option value="gemini">Gemini</option>
+    </select>
+
+    <button onclick="generate()">Generate</button>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="card">
+    <h3>2. Content Editor</h3>
+    <textarea id="content" rows="10"></textarea>
+    <button onclick="edit()">Save Edit</button>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="card">
+    <h3>3. Preview</h3>
+
+    <div id="previewText"></div>
+
+    <img id="previewImage" />
+  </div>
+
+  <!-- LINKEDIN ACTIONS -->
+  <div class="card">
+    <h3>4. LinkedIn Actions</h3>
+    <button onclick="socket.emit('oauth')">Login LinkedIn</button>
+    <button onclick="socket.emit('token')">Get Token</button>
+    <button onclick="socket.emit('profile')">Get Profile</button>
+    <button onclick="socket.emit('post')">Post</button>
+  </div>
+
+  <!-- STEPS -->
+  <div class="card">
+    <h3>Workflow Steps</h3>
+    <div id="steps"></div>
+  </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+
+const socket = io();
+let steps = [];
+
+function render() {
+  document.getElementById("steps").innerHTML =
+    steps.map(s =>
+      `<div class="step ${
+        s.status === 'approved' ? 'done' :
+        s.status === 'processing' ? 'processing' : ''
+      }">
+        ${s.name} - ${s.status}
+      </div>`
+    ).join("");
+}
+
+function setPrompt() {
+  socket.emit("set_prompt", document.getElementById("prompt").value);
+}
+
+function setModel() {
+  socket.emit("set_provider", document.getElementById("model").value);
+}
+
+function generate() {
+  socket.emit("generate");
+}
+
+function edit() {
+  socket.emit("edit", document.getElementById("content").value);
+}
+
+socket.on("state", (data) => {
+  steps = data.steps || steps;
+
+  const text = data.state.edited || "";
+
+  document.getElementById("content").value = text;
+  document.getElementById("previewText").innerText = text;
+
+  if (data.state.mediaUrl) {
+    const img = document.getElementById("previewImage");
+    img.src = data.state.mediaUrl;
+    img.style.display = "block";
+  }
+
+  render();
+});
+
+socket.on("oauth_url", (url) => window.open(url));
+socket.on("posted", () => alert("Posted successfully! 🚀"));
+socket.on("error", (e) => alert(e));
+
+</script>
+
+</body>
+</html>
