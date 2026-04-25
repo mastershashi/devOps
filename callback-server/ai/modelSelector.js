@@ -10,7 +10,7 @@ async function generateContent(prompt, provider) {
   You are an expert LinkedIn content writer.
   
   Your job is to create high quality, engaging LinkedIn posts.
-  Always follow this structure:
+  Always follow this structure step by step:
   1. Strong hook 1 line
   2. Context 2 to 3 short lines
   3. Main insight short paragraphs or bullets
