@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Book Appointment{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="booking-section">
+        <h1>Book Your Appointment</h1>
+        
+        <!-- Step 1: Check Availability -->
+        <div class="booking-card">
+            <h2 class="card-title">Step 1: Check Available Slots</h2>
+            
+            <div class="form-group">
+                <label for="doctor-select">Select Doctor</label>
+                <select id="doctor-select" class="form-control" onchange="loadSlots()">
+                    <option value="">-- Choose a doctor --</option>
+                    {% for doctor in doctors %}
+                    <option value="{{ doctor.id }}">{{ doctor.name }} - {{ doctor.specialization }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="date-select">Select Date</label>
+                <input type="date" id="date-select" class="form-control" min="{{ today }}" onchange="loadSlots()">
+            </div>
+            
+            <div id="slots-container" class="slots-grid">
+                <p class="text-muted">Select a doctor and date to view available slots</p>
+            </div>
+        </div>
+        
+        <!-- Step 2: Patient Registration -->
+        <div class="booking-card">
+            <h2 class="card-title">Step 2: Patient Information</h2>
+            
+            <form method="POST" action="{{ url_for('booking.register_patient') }}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" name="name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" name="phone" class="form-control" required pattern="[0-9]{10}">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email (Optional)</label>
+                        <input type="email" id="email" name="email" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Age *</label>
+                        <input type="number" id="age" name="age" class="form-control" required min="1" max="120">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="gender">Gender *</label>
+                        <select id="gender" name="gender" class="form-control" required>
+                            <option value="">-- Select --</option>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                            <option value="O">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" id="address" name="address" class="form-control">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-lg">Proceed to Booking</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/booking.js') }}"></script>
+<script>
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('date-select').min = today;
+</script>
+{% endblock %}

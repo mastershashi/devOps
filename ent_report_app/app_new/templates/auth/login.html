@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor Login - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="login-section">
+        <div class="login-card">
+            <h1>Admin Login</h1>
+            <p class="login-subtitle">Access clinic management dashboard</p>
+            
+            <form method="POST" action="{{ url_for('auth.login') }}" class="login-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control" required autofocus>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="clinic">Clinic (Optional)</label>
+                    <input type="text" id="clinic" name="clinic" class="form-control" placeholder="Leave empty for default">
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-lg btn-block">Login</button>
+            </form>
+            
+            <div class="login-footer">
+                <p>Don't have an account? <a href="{{ url_for('auth.register_clinic') }}">Register a clinic</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .login-section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 80px);
+        padding: 2rem 0;
+    }
+    
+    .login-card {
+        background: var(--surface);
+        padding: 3rem;
+        border-radius: var(--border-radius);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    .login-card h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+    
+    .login-subtitle {
+        text-align: center;
+        color: var(--on-surface-variant);
+        margin-bottom: 2rem;
+    }
+    
+    .login-form {
+        margin-bottom: 2rem;
+    }
+    
+    .btn-block {
+        width: 100%;
+    }
+    
+    .login-footer {
+        text-align: center;
+        border-top: 1px solid var(--outline);
+        padding-top: 1.5rem;
+        color: var(--on-surface-variant);
+    }
+    
+    .login-footer a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .login-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}

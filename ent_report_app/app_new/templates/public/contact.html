@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - ENT Clinic{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="contact-section">
+        <h1>Contact Us</h1>
+        <p class="intro">Get in touch with us for appointments and inquiries</p>
+        
+        <div class="contact-content">
+            <div class="contact-info">
+                <div class="info-card">
+                    <h3>📍 Address</h3>
+                    {% if current_clinic %}
+                        <p>{{ current_clinic.address }}</p>
+                        <p>{{ current_clinic.city }}, {{ current_clinic.state }} {{ current_clinic.zip_code }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="info-card">
+                    <h3>📞 Phone</h3>
+                    {% if current_clinic %}
+                        <p><a href="tel:{{ current_clinic.phone }}">{{ current_clinic.phone }}</a></p>
+                    {% endif %}
+                </div>
+                
+                <div class="info-card">
+                    <h3>✉️ Email</h3>
+                    {% if current_clinic %}
+                        <p><a href="mailto:{{ current_clinic.email }}">{{ current_clinic.email }}</a></p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="contact-form">
+                <form method="POST" class="form">
+                    <div class="form-group">
+                        <input type="text" name="name" placeholder="Your Name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" name="email" placeholder="Your Email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" name="phone" placeholder="Your Phone" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea name="message" placeholder="Your Message" class="form-control" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .contact-section {
+        padding: 3rem 0;
+    }
+    
+    .contact-section h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .intro {
+        font-size: 1.2rem;
+        color: var(--on-surface-variant);
+        margin-bottom: 3rem;
+    }
+    
+    .contact-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+    }
+    
+    .info-card {
+        background: var(--surface);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+    }
+    
+    .info-card h3 {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .info-card a {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+    
+    .info-card a:hover {
+        text-decoration: underline;
+    }
+    
+    .contact-form {
+        background: var(--surface);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    @media (max-width: 768px) {
+        .contact-content {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

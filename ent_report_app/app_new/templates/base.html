@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}ENT Clinic Appointment Booking System{% endblock %}">
+    <meta name="theme-color" content="#1976d2">
+    
+    <title>{% block title %}ENT Clinic{% endblock %}</title>
+    
+    <!-- Material Design 3 CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@material/web@1.0.0/all.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                {% if current_clinic %}
+                    <span class="logo-text">{{ current_clinic.name }}</span>
+                {% else %}
+                    <span class="logo-text">ENT Clinic</span>
+                {% endif %}
+            </div>
+            
+            <div class="nav-menu">
+                <a href="{{ url_for('public.index') }}" class="nav-link">Home</a>
+                <a href="{{ url_for('public.doctors_list') }}" class="nav-link">Doctors</a>
+                <a href="{{ url_for('booking.check_slots') }}" class="nav-link">Book Appointment</a>
+                <a href="{{ url_for('public.services') }}" class="nav-link">Services</a>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('admin.dashboard') }}" class="nav-link btn-admin">Dashboard</a>
+                    <a href="{{ url_for('auth.logout') }}" class="nav-link">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="nav-link btn-admin">Admin Login</a>
+                {% endif %}
+            </div>
+            
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                    <button class="alert-close">&times;</button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Chatbot Widget -->
+    <div id="chatbot-widget" class="chatbot-widget">
+        <div class="chatbot-header">
+            <h4>Chat with us</h4>
+            <button class="close-chat">&times;</button>
+        </div>
+        <div class="chatbot-messages" id="chatMessages"></div>
+        <div class="chatbot-input">
+            <input type="text" id="chatInput" placeholder="Ask a question...">
+            <button onclick="sendChatMessage()">Send</button>
+        </div>
+    </div>
+    <button id="chatbot-toggle" class="chatbot-toggle" onclick="toggleChatbot()">💬</button>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>{{ current_clinic.name if current_clinic else 'ENT Clinic' }}</h3>
+                <p>Professional ENT Healthcare Services</p>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Contact</h4>
+                {% if current_clinic %}
+                    <p>📍 {{ current_clinic.address }}, {{ current_clinic.city }}, {{ current_clinic.state }} {{ current_clinic.zip_code }}</p>
+                    <p>📞 {{ current_clinic.phone }}</p>
+                    <p>✉️ {{ current_clinic.email }}</p>
+                {% else %}
+                    <p>Contact information will appear here</p>
+                {% endif %}
+            </div>
+            
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="{{ url_for('public.about') }}">About Us</a></li>
+                    <li><a href="{{ url_for('public.services') }}">Services</a></li>
+                    <li><a href="{{ url_for('public.contact') }}">Contact</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    <a href="#" target="_blank" rel="noopener">Facebook</a>
+                    <a href="#" target="_blank" rel="noopener">Twitter</a>
+                    <a href="#" target="_blank" rel="noopener">Instagram</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2024 {{ current_clinic.name if current_clinic else 'ENT Clinic' }}. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@material/web@1.0.0/bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('{{ url_for("static", filename="sw.js") }}');
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

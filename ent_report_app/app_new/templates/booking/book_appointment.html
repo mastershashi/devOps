@@ -1,0 +1,414 @@
+{% extends "base.html" %}
+
+{% block title %}Book Appointment{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="booking-section">
+        <div class="booking-card">
+            <h1>Book Your Appointment</h1>
+            <p class="subtitle">Select a doctor and preferred time slot</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="patient-info">
+                <h3>Patient Information</h3>
+                <div class="info-row">
+                    <span class="label">Name:</span>
+                    <span class="value">{{ patient.name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Phone:</span>
+                    <span class="value">{{ patient.phone }}</span>
+                </div>
+                {% if patient.email %}
+                <div class="info-row">
+                    <span class="label">Email:</span>
+                    <span class="value">{{ patient.email }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <form method="POST" action="{{ url_for('booking.book_appointment', patient_id=patient.id) }}" class="booking-form">
+                <div class="form-group">
+                    <label for="doctor-select">Select Doctor *</label>
+                    <select id="doctor-select" name="doctor_id" class="form-control" required onchange="updateDoctorInfo()">
+                        <option value="">-- Choose a doctor --</option>
+                        {% for doctor in doctors %}
+                        <option value="{{ doctor.id }}" data-fee="{{ doctor.consultation_fee }}" data-specialization="{{ doctor.specialization }}">
+                            {{ doctor.name }} - {{ doctor.specialization }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div id="doctor-info" class="doctor-info" style="display: none;">
+                    <div class="doctor-card">
+                        <h4 id="doctor-name"></h4>
+                        <p id="doctor-specialization" class="specialization"></p>
+                        <div class="doctor-details">
+                            <div class="detail-item">
+                                <span class="label">Experience:</span>
+                                <span id="doctor-experience"></span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Consultation Fee:</span>
+                                <span id="doctor-fee"></span>
+                            </div>
+                        </div>
+                        <p id="doctor-bio" class="bio"></p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="appointment-date">Preferred Date *</label>
+                    <input type="date" id="appointment-date" name="appointment_date" class="form-control"
+                           required min="{{ today }}" onchange="loadAvailableSlots()">
+                </div>
+
+                <div id="slots-section" style="display: none;">
+                    <label>Available Time Slots *</label>
+                    <div id="time-slots" class="time-slots">
+                        <p class="text-muted">Loading available slots...</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Additional Notes</label>
+                    <textarea id="notes" name="notes" class="form-control" rows="3"
+                              placeholder="Any specific symptoms or concerns..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ url_for('booking.check_slots') }}" class="btn btn-secondary">Back</a>
+                    <button type="submit" class="btn btn-primary" id="book-btn" disabled>
+                        Book Appointment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedSlotId = null;
+const today = new Date().toISOString().split('T')[0];
+
+function updateDoctorInfo() {
+    const select = document.getElementById('doctor-select');
+    const selectedOption = select.options[select.selectedIndex];
+    const doctorInfo = document.getElementById('doctor-info');
+
+    if (selectedOption.value) {
+        const fee = selectedOption.getAttribute('data-fee');
+        const specialization = selectedOption.getAttribute('data-specialization');
+
+        // Get doctor details via AJAX
+        fetch(`/booking/api/doctor/${selectedOption.value}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('doctor-name').textContent = data.name;
+                document.getElementById('doctor-specialization').textContent = data.specialization;
+                document.getElementById('doctor-experience').textContent = `${data.experience_years} years`;
+                document.getElementById('doctor-fee').textContent = `₹${data.consultation_fee}`;
+                document.getElementById('doctor-bio').textContent = data.bio || 'Experienced ENT specialist';
+                doctorInfo.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error loading doctor info:', error);
+                doctorInfo.style.display = 'none';
+            });
+    } else {
+        doctorInfo.style.display = 'none';
+    }
+}
+
+function loadAvailableSlots() {
+    const doctorSelect = document.getElementById('doctor-select');
+    const dateInput = document.getElementById('appointment-date');
+    const slotsSection = document.getElementById('slots-section');
+    const timeSlots = document.getElementById('time-slots');
+
+    if (!doctorSelect.value || !dateInput.value) {
+        slotsSection.style.display = 'none';
+        return;
+    }
+
+    timeSlots.innerHTML = '<p class="text-muted">Loading available slots...</p>';
+    slotsSection.style.display = 'block';
+
+    fetch(`/booking/api/slots/${doctorSelect.value}/${dateInput.value}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.slots && data.slots.length > 0) {
+                timeSlots.innerHTML = '';
+                data.slots.forEach(slot => {
+                    const slotBtn = document.createElement('button');
+                    slotBtn.type = 'button';
+                    slotBtn.className = 'time-slot-btn';
+                    slotBtn.textContent = `${slot.start_time} - ${slot.end_time}`;
+                    slotBtn.onclick = () => selectSlot(slot.id, slotBtn);
+                    timeSlots.appendChild(slotBtn);
+                });
+            } else {
+                timeSlots.innerHTML = '<p class="text-muted">No slots available for this date</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading slots:', error);
+            timeSlots.innerHTML = '<p class="text-error">Error loading slots</p>';
+        });
+}
+
+function selectSlot(slotId, buttonElement) {
+    // Remove selection from other buttons
+    document.querySelectorAll('.time-slot-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+
+    // Select this button
+    buttonElement.classList.add('selected');
+    selectedSlotId = slotId;
+
+    // Enable book button
+    document.getElementById('book-btn').disabled = false;
+
+    // Add hidden input for slot ID
+    let hiddenInput = document.getElementById('selected-slot-input');
+    if (!hiddenInput) {
+        hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.id = 'selected-slot-input';
+        hiddenInput.name = 'slot_id';
+        document.querySelector('.booking-form').appendChild(hiddenInput);
+    }
+    hiddenInput.value = slotId;
+}
+</script>
+
+<style>
+.booking-section {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.booking-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    color: #1976d2;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.patient-info {
+    background: #f5f5f5;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.patient-info h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.label {
+    font-weight: 600;
+    color: #666;
+}
+
+.value {
+    color: #333;
+}
+
+.doctor-info {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background: #e3f2fd;
+    border-radius: 8px;
+    border-left: 4px solid #1976d2;
+}
+
+.doctor-card h4 {
+    margin: 0 0 0.5rem 0;
+    color: #1976d2;
+}
+
+.specialization {
+    color: #666;
+    font-style: italic;
+    margin-bottom: 1rem;
+}
+
+.doctor-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+}
+
+.bio {
+    color: #555;
+    line-height: 1.5;
+}
+
+.time-slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.time-slot-btn {
+    padding: 0.75rem;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.time-slot-btn:hover {
+    border-color: #1976d2;
+    background: #f8f9fa;
+}
+
+.time-slot-btn.selected {
+    border-color: #1976d2;
+    background: #1976d2;
+    color: white;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.btn {
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #1976d2;
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #1565c0;
+}
+
+.btn-primary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.text-muted {
+    color: #6c757d;
+}
+
+.text-error {
+    color: #dc3545;
+}
+
+@media (max-width: 768px) {
+    .booking-section {
+        margin: 1rem auto;
+        padding: 0 0.5rem;
+    }
+
+    .booking-card {
+        padding: 1.5rem;
+    }
+
+    .doctor-details {
+        grid-template-columns: 1fr;
+    }
+
+    .time-slots {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

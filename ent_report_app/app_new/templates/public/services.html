@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Our Services - ENT Clinic{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="services-page">
+        <h1>Our Services</h1>
+        <p class="intro">Comprehensive ENT healthcare services for all age groups</p>
+        
+        <div class="services-list">
+            <div class="service-item">
+                <div class="service-icon">👂</div>
+                <h3>Hearing Tests & Assessment</h3>
+                <p>Comprehensive audiological testing and evaluation to diagnose hearing problems</p>
+            </div>
+            
+            <div class="service-item">
+                <div class="service-icon">🔊</div>
+                <h3>Hearing Aids & Devices</h3>
+                <p>Latest hearing aid technology, fitting, and maintenance services</p>
+            </div>
+            
+            <div class="service-item">
+                <div class="service-icon">😷</div>
+                <h3>Sinus & Allergy Treatment</h3>
+                <p>Treatment for chronic sinusitis, allergies, and related conditions</p>
+            </div>
+            
+            <div class="service-item">
+                <div class="service-icon">🎤</div>
+                <h3>Voice & Speech Therapy</h3>
+                <p>Professional voice therapy and speech rehabilitation services</p>
+            </div>
+            
+            <div class="service-item">
+                <div class="service-icon">🏥</div>
+                <h3>Endoscopic Procedures</h3>
+                <p>Advanced endoscopic diagnosis and minimally invasive treatment</p>
+            </div>
+            
+            <div class="service-item">
+                <div class="service-icon">👶</div>
+                <h3>Pediatric ENT</h3>
+                <p>Specialized ENT care for children including ear infections and adenoid issues</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .services-page {
+        padding: 3rem 0;
+    }
+    
+    .services-page h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .intro {
+        font-size: 1.2rem;
+        color: var(--on-surface-variant);
+        margin-bottom: 3rem;
+    }
+    
+    .services-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+    
+    .service-item {
+        background: var(--surface);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        text-align: center;
+        transition: var(--transition);
+    }
+    
+    .service-item:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    }
+    
+    .service-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .service-item h3 {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+        color: var(--on-surface);
+    }
+    
+    .service-item p {
+        color: var(--on-surface-variant);
+        line-height: 1.6;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}{{ doctor.name }} - Doctor Profile{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="doctor-detail-section">
+        <div class="doctor-detail-header">
+            <div class="doctor-detail-image">
+                <img src="{{ doctor.image_url or 'https://via.placeholder.com/300x300/1976d2/ffffff?text=Doctor' }}" alt="{{ doctor.name }}">
+            </div>
+            <div class="doctor-detail-info">
+                <h1>{{ doctor.name }}</h1>
+                <p class="specialization-large">{{ doctor.specialization }}</p>
+                <div class="doctor-badges">
+                    <span class="badge">{{ doctor.experience_years or 10 }}+ Years Experience</span>
+                    <span class="badge">Consultation: ₹{{ doctor.consultation_fee }}</span>
+                </div>
+                <a href="{{ url_for('booking.check_slots') }}?doctor_id={{ doctor.id }}" class="btn btn-primary btn-lg">Book Appointment</a>
+            </div>
+        </div>
+        
+        <div class="doctor-detail-tabs">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="about">About</button>
+                <button class="tab-btn" data-tab="qualifications">Qualifications</button>
+                <button class="tab-btn" data-tab="availability">Availability</button>
+            </div>
+            
+            <div class="tab-content">
+                <div id="about" class="tab-pane active">
+                    <h2>About Dr. {{ doctor.name }}</h2>
+                    <p>{{ doctor.bio or 'Experienced specialist with years of dedicated service in ENT healthcare.' }}</p>
+                </div>
+                
+                <div id="qualifications" class="tab-pane">
+                    <h2>Qualifications & Certifications</h2>
+                    <div class="qualifications-list">
+                        {% if doctor.qualifications %}
+                            {{ doctor.qualifications|safe }}
+                        {% else %}
+                            <p>Professional qualifications and certifications will be displayed here.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div id="availability" class="tab-pane">
+                    <h2>Availability</h2>
+                    <div class="availability-info">
+                        <p>Check available slots on the booking page for this doctor.</p>
+                        <a href="{{ url_for('booking.check_slots') }}?doctor_id={{ doctor.id }}" class="btn btn-primary">Check & Book Slots</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        
+        this.classList.add('active');
+        document.getElementById(this.dataset.tab).classList.add('active');
+    });
+});
+</script>
+{% endblock %}

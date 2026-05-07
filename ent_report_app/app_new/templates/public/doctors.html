@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}All Doctors - ENT Clinic{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="doctors-listing">
+        <h1>Our Specialist Doctors</h1>
+        <p class="section-subtitle">Choose from our team of experienced ENT specialists</p>
+        
+        <!-- Filters -->
+        <div class="filters">
+            <input type="text" id="search-doctors" class="form-control" placeholder="Search by name or specialization">
+        </div>
+        
+        <!-- Doctors Grid -->
+        <div class="doctors-grid">
+            {% for doctor in doctors %}
+            <div class="doctor-card">
+                <div class="doctor-image">
+                    <img src="{{ doctor.image_url or 'https://via.placeholder.com/300x300/1976d2/ffffff?text=Doctor' }}" alt="{{ doctor.name }}">
+                </div>
+                <div class="doctor-info">
+                    <h3>{{ doctor.name }}</h3>
+                    <p class="specialization">{{ doctor.specialization }}</p>
+                    <p class="bio">{{ doctor.bio[:100] if doctor.bio else 'Experienced specialist' }}...</p>
+                    <div class="doctor-meta">
+                        <span class="experience">{{ doctor.experience_years or 10 }}+ Years</span>
+                        <span class="fee">₹{{ doctor.consultation_fee }}</span>
+                    </div>
+                    <div class="doctor-buttons">
+                        <a href="{{ url_for('public.doctor_detail', doctor_id=doctor.id) }}" class="btn btn-outline btn-sm">View Profile</a>
+                        <a href="{{ url_for('booking.check_slots') }}?doctor_id={{ doctor.id }}" class="btn btn-primary btn-sm">Book Now</a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                <p style="font-size: 1.2rem; color: var(--on-surface-variant);">No doctors available at the moment</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .doctors-listing {
+        padding: 3rem 0;
+    }
+    
+    .doctors-listing h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .section-subtitle {
+        color: var(--on-surface-variant);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .filters {
+        margin-bottom: 2rem;
+    }
+    
+    .filters .form-control {
+        max-width: 400px;
+    }
+    
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .doctor-buttons {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    .doctor-buttons .btn {
+        flex: 1;
+        text-align: center;
+    }
+</style>
+
+<script>
+    function fuzzyMatch(text, query) {
+        if (!query) return true;
+        const normalizedText = text.toLowerCase();
+        const normalizedQuery = query.toLowerCase().trim();
+        if (normalizedText.includes(normalizedQuery)) {
+            return true;
+        }
+
+        const tokens = normalizedQuery.split(/\s+/).filter(Boolean);
+        return tokens.every(token => normalizedText.includes(token));
+    }
+
+    document.getElementById('search-doctors').addEventListener('keyup', function() {
+        const searchTerm = this.value;
+        document.querySelectorAll('.doctor-card').forEach(card => {
+            const name = card.querySelector('h3').textContent;
+            const spec = card.querySelector('.specialization').textContent;
+            const summary = `${name} ${spec}`;
+
+            if (fuzzyMatch(summary, searchTerm)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

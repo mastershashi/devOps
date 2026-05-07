@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}ENT Clinic - Home{% endblock %}
+{% block meta_description %}Book your ENT consultation with experienced doctors online. Professional healthcare services.{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Professional ENT Healthcare</h1>
+            <p class="hero-subtitle">Book your appointment with experienced specialists</p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('booking.check_slots') }}" class="btn btn-primary btn-lg">Book Appointment</a>
+                <a href="{{ url_for('public.services') }}" class="btn btn-secondary btn-lg">Learn More</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="https://via.placeholder.com/600x400/1976d2/ffffff?text=Medical+Services" alt="Medical Services">
+        </div>
+    </section>
+    
+    <!-- Quick Stats -->
+    <section class="stats-section">
+        <div class="stat-card">
+            <div class="stat-number">50+</div>
+            <div class="stat-label">Happy Patients</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">10+</div>
+            <div class="stat-label">Specialist Doctors</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">15+</div>
+            <div class="stat-label">Years Experience</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Support Available</div>
+        </div>
+    </section>
+    
+    <!-- Featured Doctors -->
+    <section class="doctors-section">
+        <h2 class="section-title">Our Specialist Doctors</h2>
+        <div class="doctors-grid">
+            {% for doctor in doctors[:3] %}
+            <div class="doctor-card">
+                <div class="doctor-image">
+                    <img src="{{ doctor.image_url or 'https://via.placeholder.com/300x300/1976d2/ffffff?text=Doctor' }}" alt="{{ doctor.name }}">
+                </div>
+                <div class="doctor-info">
+                    <h3>{{ doctor.name }}</h3>
+                    <p class="specialization">{{ doctor.specialization }}</p>
+                    <p class="bio">{{ doctor.bio[:100] if doctor.bio else 'Experienced specialist' }}...</p>
+                    <div class="doctor-meta">
+                        <span class="experience">{{ doctor.experience_years or 10 }}+ Years</span>
+                        <span class="fee">₹{{ doctor.consultation_fee }}</span>
+                    </div>
+                    <a href="{{ url_for('public.doctor_detail', doctor_id=doctor.id) }}" class="btn btn-outline">View Profile</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="{{ url_for('public.doctors_list') }}" class="btn btn-primary">View All Doctors</a>
+        </div>
+    </section>
+    
+    <!-- Testimonials Carousel -->
+    <section class="testimonials-section">
+        <h2 class="section-title">What Our Patients Say</h2>
+        <div class="testimonials-carousel">
+            <div class="carousel-container">
+                {% for testimonial in testimonials %}
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="stars">
+                            {% for i in range(testimonial.rating) %}
+                            ⭐
+                            {% endfor %}
+                        </div>
+                        <p class="message">"{{ testimonial.message }}"</p>
+                    </div>
+                    <div class="testimonial-author">
+                        {% if testimonial.image_url %}
+                        <img src="{{ testimonial.image_url }}" alt="{{ testimonial.patient_name }}" class="author-image">
+                        {% else %}
+                        <div class="author-image author-placeholder">{{ testimonial.patient_name[0] }}</div>
+                        {% endif %}
+                        <div class="author-info">
+                            <p class="author-name">{{ testimonial.patient_name }}</p>
+                            <p class="author-role">Patient</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-btn prev" onclick="scrollCarousel(-1)">❮</button>
+            <button class="carousel-btn next" onclick="scrollCarousel(1)">❯</button>
+        </div>
+    </section>
+    
+    <!-- Services Section -->
+    <section class="services-section">
+        <h2 class="section-title">Our Services</h2>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">👂</div>
+                <h3>Hearing Tests</h3>
+                <p>Comprehensive hearing assessment and evaluation</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">🔊</div>
+                <h3>Hearing Aids</h3>
+                <p>Latest hearing aid technology and fitting</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">😷</div>
+                <h3>Sinus Treatment</h3>
+                <p>Non-invasive sinus and allergy treatment</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">🎤</div>
+                <h3>Voice Therapy</h3>
+                <p>Professional voice and speech therapy</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2>Ready to Book Your Appointment?</h2>
+        <p>Join hundreds of satisfied patients who trust our clinic</p>
+        <a href="{{ url_for('booking.check_slots') }}" class="btn btn-primary btn-lg">Book Now</a>
+    </section>
+</div>
+
+<script src="{{ url_for('static', filename='js/carousel.js') }}"></script>
+{% endblock %}

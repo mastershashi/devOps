@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-section">
+        <h1>Admin Dashboard</h1>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-number">{{ stats.total_appointments }}</div>
+                <div class="stat-label">Total Appointments</div>
+                <a href="#appointments" class="stat-link">View Details →</a>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">{{ stats.completed_appointments }}</div>
+                <div class="stat-label">Completed</div>
+                <div class="stat-percent">
+                    {% if stats.total_appointments > 0 %}
+                        {{ (stats.completed_appointments / stats.total_appointments * 100)|int }}%
+                    {% else %}
+                        0%
+                    {% endif %}
+                </div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">{{ stats.total_doctors }}</div>
+                <div class="stat-label">Active Doctors</div>
+                <a href="{{ url_for('admin.manage_doctors') }}" class="stat-link">Manage →</a>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">{{ stats.reports_generated }}</div>
+                <div class="stat-label">Reports Generated</div>
+                <a href="{{ url_for('admin.reports') }}" class="stat-link">View All →</a>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="{{ url_for('admin.manage_slots') }}" class="action-btn">
+                <span class="icon">📅</span>
+                <span>Manage Slots</span>
+            </a>
+            <a href="{{ url_for('admin.manage_doctors') }}" class="action-btn">
+                <span class="icon">👨‍⚕️</span>
+                <span>Doctors</span>
+            </a>
+            <a href="{{ url_for('admin.reports') }}" class="action-btn">
+                <span class="icon">📋</span>
+                <span>Reports</span>
+            </a>
+            <a href="{{ url_for('admin.testimonials') }}" class="action-btn">
+                <span class="icon">⭐</span>
+                <span>Testimonials</span>
+            </a>
+        </div>
+        
+        <!-- Recent Appointments -->
+        <div id="appointments" class="recent-section">
+            <h2>Recent Appointments</h2>
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Doctor</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appointment in appointments %}
+                        <tr>
+                            <td>{{ appointment.patient.name }}</td>
+                            <td>{{ appointment.doctor.name }}</td>
+                            <td>{{ appointment.slot.date }}</td>
+                            <td>{{ appointment.slot.start_time }}</td>
+                            <td><span class="status-badge status-{{ appointment.status }}">{{ appointment.status }}</span></td>
+                            <td>
+                                <a href="{{ url_for('admin.generate_report', appointment_id=appointment.id) }}" class="btn-small">Report</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .admin-section {
+        padding: 2rem 0;
+    }
+    
+    .admin-section h1 {
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        color: var(--on-surface);
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    
+    .stat-box {
+        background: var(--surface);
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: var(--on-surface-variant);
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-percent {
+        font-size: 0.9rem;
+        color: var(--success-color);
+        font-weight: 600;
+    }
+    
+    .stat-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+    
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 3rem;
+    }
+    
+    .action-btn {
+        background: var(--surface);
+        border: 2px solid var(--outline);
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        text-align: center;
+        text-decoration: none;
+        color: var(--on-surface);
+        transition: var(--transition);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .action-btn:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transform: translateY(-2px);
+    }
+    
+    .action-btn .icon {
+        font-size: 2rem;
+    }
+    
+    .recent-section {
+        background: var(--surface);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .recent-section h2 {
+        margin-bottom: 1.5rem;
+        color: var(--on-surface);
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .admin-table th {
+        background: var(--surface-variant);
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: var(--on-surface);
+        border-bottom: 2px solid var(--outline);
+    }
+    
+    .admin-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--outline);
+    }
+    
+    .admin-table tr:hover {
+        background: var(--surface-variant);
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .status-confirmed {
+        background: #e3f2fd;
+        color: var(--primary-color);
+    }
+    
+    .status-completed {
+        background: #e8f5e9;
+        color: var(--success-color);
+    }
+    
+    .status-cancelled {
+        background: #ffebee;
+        color: var(--error-color);
+    }
+    
+    .btn-small {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: var(--transition);
+    }
+    
+    .btn-small:hover {
+        background: var(--primary-dark);
+    }
+</style>
+{% endblock %}
