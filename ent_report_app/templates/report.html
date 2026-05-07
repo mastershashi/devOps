@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ENT Report - {{ patient.name or "Patient" }}</title>
+  <style>
+    :root {
+      --header-h-mm: 60mm;
+      --footer-h-mm: 18mm; /* compact footer */
+      --gap-after-header-mm: 4mm;
+      --gap-before-footer-mm: 4mm;
+      --pad-x: 18mm;
+      --font: Arial, Helvetica, sans-serif;
+      --line: 1.35;
+    }
+    @page { size: A4; margin: 0; }
+    body {
+      margin: 0; font-family: var(--font); color: #111;
+      -webkit-print-color-adjust: exact;
+    }
+
+    /* Header & footer default for screen */
+    header, footer {
+      position: fixed;
+      left: 0;
+      width: 100%;
+      display: block;
+    }
+    header { top: 0; height: var(--header-h-mm); }
+    footer { bottom: 0; height: var(--footer-h-mm); }
+    header img, footer img {
+      width: 100%; height: auto; object-fit: contain; display: block;
+    }
+
+    /* Content wrapper */
+    .page {
+      box-sizing: border-box;
+      padding-left: var(--pad-x);
+      padding-right: var(--pad-x);
+      padding-top: calc(var(--header-h-mm) + var(--gap-after-header-mm));
+      padding-bottom: calc(var(--footer-h-mm) + var(--gap-before-footer-mm));
+    }
+    .page + .page { page-break-before: always; }
+
+    /* Patient details */
+    .patient-details {
+      display: flex; justify-content: space-between;
+      align-items: flex-start;
+      border-top: 1px solid #000;
+      padding-top: 6px; margin-bottom: 10mm;
+      font-size: 11.5pt;
+    }
+    .patient-left { line-height: 1.35; max-width: 70%; }
+    .barcode img { height: 35px; display: block; margin-bottom: 6px; }
+    .patient-id { font-weight: bold; font-size: 13pt; margin-bottom: 3px; }
+    .patient-meta { margin-bottom: 3px; }
+    .patient-right { text-align: right; font-weight: bold; min-width: 140px; }
+
+    /* Sections */
+    .section-title { font-weight: bold; font-size: 13pt; margin: 8px 0 6px; }
+    .section-text { white-space: pre-wrap; font-size: 12pt; line-height: var(--line); margin-bottom: 8mm; }
+
+    /* Images grid */
+    .images-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 8mm;
+    }
+    .img-card {
+      border: 1px solid #ddd; border-radius: 6px;
+      padding: 6px; display: flex; align-items: center; justify-content: center;
+      page-break-inside: avoid; break-inside: avoid;
+      min-height: 75mm; background: #fff;
+    }
+    .img-card img {
+      max-width: 100%; max-height: 100%; object-fit: contain; display: block;
+    }
+    @media screen {
+      .img-card img { max-height: 300px; }
+    }
+
+    /* PDF-safe print rules */
+    @media print {
+      header, footer {
+        position: fixed;
+        left: 0;
+        right: 0;
+        width: 100%;
+        display: block !important;
+      }
+      header { top: 0; height: var(--header-h-mm); }
+      footer { bottom: 0; height: var(--footer-h-mm); }
+      body { margin: 0; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="{{ url_for('static', filename='header.png') }}" alt="Header">
+  </header>
+  <footer>
+    <img src="{{ url_for('static', filename='footer.png') }}" alt="Footer">
+  </footer>
+
+  <!-- PAGE 1 -->
+  <div class="page">
+    <div class="patient-details">
+      <div class="patient-left">
+        <div class="barcode">
+          <img src="{{ url_for('static', filename='barcode.png') }}" alt="Barcode">
+        </div>
+        <div class="patient-id">
+          ID: {{ patient.id or "N/A" }} - {{ patient.name or "Unknown" }} ({{ patient.sex or "-" }})
+        </div>
+        <div class="patient-meta">
+          Age: {{ patient.age or "-" }}, Mobile: {{ patient.mobile or "-" }}
+        </div>
+        <div class="patient-meta">
+          Address: {{ patient.address or "-" }}
+        </div>
+      </div>
+      <div class="patient-right">
+        Date:<br>
+        <span style="font-size:14pt;">{{ patient.date }}</span>
+      </div>
+    </div>
+
+    <div class="section-title">Diagnosis</div>
+    <div class="section-text">{{ patient.diagnosis or "" }}</div>
+
+    <div class="section-title">Findings</div>
+    <div class="section-text">{{ patient.findings or "" }}</div>
+
+    <div class="section-title">Prescription Given</div>
+    <div class="section-text">{{ patient.prescription or "" }}</div>
+  </div>
+
+  {% if images and images|length > 0 %}
+    {% for batch in images|batch(4, fill_with=None) %}
+      <div class="page">
+        <div class="section-title">Otoscopic Report</div>
+        <div class="images-grid">
+          {% for img in batch %}
+            {% if img %}
+              <div class="img-card">
+                <img src="{{ url_for(img[0], filename=img[1]) }}" alt="Otoscopic Image">
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
+</body>
+</html>

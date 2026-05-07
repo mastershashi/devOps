@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ENT Report Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>ENT Report Generator</h1>
+    <form id="reportForm" action="{{ url_for('generate') }}" method="post" enctype="multipart/form-data" class="card">
+      <div class="grid">
+        <label>Patient ID <input name="id"></label>
+        <label>Name <input name="name" required></label>
+        <label>Age <input name="age" type="number" min="0"></label>
+        <label>Sex
+          <select name="sex">
+            <option value=""></option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <label>Weight (kg) <input name="weight" type="number" step="0.1" min="0"></label>
+        <label>Mobile <input name="mobile"></label>
+        <label>Date/Time <input name="date" placeholder="YYYY-MM-DD HH:MM"></label>
+      </div>
+
+      <label>Address
+        <textarea name="address" rows="2"></textarea>
+      </label>
+
+      <label>Diagnosis
+        <textarea name="diagnosis" rows="3"></textarea>
+      </label>
+
+      <label>Findings
+        <textarea name="findings" rows="3"></textarea>
+      </label>
+
+      <label>Prescription Given
+        <textarea name="prescription" rows="4"></textarea>
+      </label>
+
+      <h3>Upload Otoscopic Images (optional)</h3>
+      <input type="file" name="file1" accept="image/*">
+      <input type="file" name="file2" accept="image/*">
+      <input type="file" name="file3" accept="image/*">
+      <input type="file" name="file4" accept="image/*">
+
+      <p class="hint">Or tick sample images (if present in /static):</p>
+      <div class="checkboxes">
+        <label><input type="checkbox" name="sample_img1.jpg"> Sample 1</label>
+        <label><input type="checkbox" name="sample_img2.jpg"> Sample 2</label>
+        <label><input type="checkbox" name="sample_img3.jpg"> Sample 3</label>
+        <label><input type="checkbox" name="sample_img4.jpg"> Sample 4</label>
+      </div>
+
+      <button type="submit">Generate Report</button>
+    </form>
+  </div>
+
+  <!-- Modal for preview -->
+  <div id="previewModal" class="modal">
+    <div class="modal-content">
+      <iframe id="reportFrame"></iframe>
+      <div class="modal-buttons">
+        <button id="printBtn">Print</button>
+        <button id="cancelBtn" class="cancel-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('reportForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      let formData = new FormData(this);
+      fetch(this.action, { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('reportFrame').src = data.report_url;
+          document.getElementById('previewModal').style.display = 'block';
+        });
+    });
+    document.getElementById('printBtn').addEventListener('click', function() {
+      document.getElementById('reportFrame').contentWindow.print();
+    });
+    document.getElementById('cancelBtn').addEventListener('click', function() {
+      document.getElementById('previewModal').style.display = 'none';
+    });
+    window.onclick = function(e) {
+      if (e.target.id === 'previewModal') {
+        document.getElementById('previewModal').style.display = 'none';
+      }
+    };
+  </script>
+</body>
+</html>
